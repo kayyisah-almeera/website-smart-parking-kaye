@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gesture Patrol — Kendali Ikon micro:bit dengan Gestur Tangan</title>
+<meta name="description" content="Kendalikan ikon micro:bit dengan gestur tangan Oke dan Peace menggunakan Teachable Machine dan Bluetooth, bertema Paw Patrol.">
+<meta property="og:title" content="Gesture Patrol — Kendali Ikon micro:bit dengan Gestur Tangan">
+<meta property="og:description" content="Tunjukkan gestur Oke atau Peace ke kamera, ikon micro:bit berubah lewat Bluetooth.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.4/dist/teachablemachine-image.min.js"></script>
+<style>
+:root{
+  --sky:#5BBCEC; --sky-deep:#2E86C9; --sky-soft:#BDE3F8;
+  --navy:#14406F; --navy-deep:#0C2B50;
+  --red:#EE3B33; --red-dark:#B92A23;
+  --yellow:#FFCB05; --yellow-dark:#E5A800;
+  --cream:#FFF6DC; --white:#FFFFFF; --ink:#14406F;
+  --ok:#1E9E6A; --ok-bg:#E0F5EC; --bad:#D8452B; --bad-bg:#FBE4DE;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Baloo 2',cursive;color:var(--ink);min-height:100vh;line-height:1.55;overflow-x:hidden;
+  background-color:var(--sky);
+  background-image:
+    radial-gradient(circle at 12px 14px, rgba(255,255,255,.16) 5px, transparent 6px),
+    radial-gradient(circle at 7px 9px,  rgba(255,255,255,.16) 2.4px, transparent 3.4px),
+    radial-gradient(circle at 17px 9px, rgba(255,255,255,.16) 2.4px, transparent 3.4px),
+    radial-gradient(circle at 12px 22px,rgba(255,255,255,.16) 2.4px, transparent 3.4px),
+    radial-gradient(circle at 6px 17px, rgba(255,255,255,.16) 2.4px, transparent 3.4px),
+    radial-gradient(circle at 18px 17px,rgba(255,255,255,.16) 2.4px, transparent 3.4px);
+  background-size:60px 60px;
+}
+button{font-family:inherit;cursor:pointer;border:0}
+button:disabled{opacity:.55;cursor:not-allowed}
+
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px 0}
+
+/* ===== Strip pengumuman kuning ===== */
+.ticker{background:var(--yellow);border-bottom:4px solid var(--yellow-dark);padding:10px 16px;
+  display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.ticker b{color:var(--navy);font-size:15px;letter-spacing:.4px;text-transform:uppercase}
+.ticker .go{background:var(--red);color:#fff;font-weight:800;font-size:13px;padding:6px 18px;
+  border-radius:999px;border-bottom:3px solid var(--red-dark);text-decoration:none;transition:.15s}
+.ticker .go:hover{transform:translateY(-2px)}
+
+/* ===== Navbar ===== */
+nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;
+  background:var(--navy);border-radius:20px;padding:12px 18px;border-bottom:6px solid var(--navy-deep);
+  box-shadow:0 14px 30px -14px rgba(12,43,80,.55)}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Titan One',cursive;color:#fff;font-size:21px;letter-spacing:.5px;text-shadow:0 2px 0 var(--navy-deep)}
+.brand .shield{width:44px;height:44px;border-radius:12px 12px 14px 14px;background:var(--red);
+  border:3px solid #fff;display:grid;place-items:center;font-size:22px;transform:rotate(-4deg);
+  box-shadow:0 4px 0 var(--red-dark)}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{display:flex;align-items:center;gap:7px;color:#CFE6F7;text-decoration:none;font-weight:700;font-size:14px;
+  padding:9px 16px;border-radius:12px;transition:.15s}
+.nav-links a .ic{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:13px}
+.nav-links a:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-links a.active{background:var(--red);color:#fff;border-bottom:3px solid var(--red-dark)}
+.btn{border-radius:14px;font-weight:800;font-size:15px;padding:11px 24px;transition:.15s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn-yellow{background:var(--yellow);color:var(--navy);border-bottom:4px solid var(--yellow-dark);box-shadow:0 10px 22px -10px rgba(12,43,80,.5)}
+.btn-yellow:hover:not(:disabled){transform:translateY(-2px)}
+.btn-red{background:var(--red);color:#fff;border-bottom:4px solid var(--red-dark);box-shadow:0 10px 22px -10px rgba(185,42,35,.6)}
+.btn-red:hover:not(:disabled){transform:translateY(-2px)}
+.btn-navy{background:var(--navy);color:#fff;border-bottom:4px solid var(--navy-deep)}
+.btn-navy:hover:not(:disabled){transform:translateY(-2px)}
+.btn-outline{background:#fff;color:var(--navy);border:3px solid var(--sky-soft)}
+.btn-outline:hover:not(:disabled){background:var(--cream)}
+.btn-danger{background:var(--bad-bg);color:var(--bad);border-bottom:4px solid #EBC2B8}
+.btn-sm{padding:9px 18px;font-size:13px}
+
+/* ===== Hero ===== */
+.hero{position:relative;text-align:center;padding:58px 0 44px}
+.hero-tag{display:inline-block;background:var(--red);color:#fff;font-family:'Titan One',cursive;font-size:clamp(15px,2.2vw,22px);
+  letter-spacing:2px;padding:10px 30px;border-radius:12px;border:3px solid #fff;border-bottom:6px solid var(--red-dark);
+  transform:rotate(-2.5deg);box-shadow:0 12px 26px -12px rgba(185,42,35,.7)}
+.hero h1{font-family:'Titan One',cursive;font-size:clamp(36px,6vw,62px);color:#fff;line-height:1.1;letter-spacing:.5px;
+  margin:26px auto 0;max-width:860px;text-shadow:0 4px 0 var(--sky-deep),0 8px 24px rgba(12,43,80,.35)}
+.hero h1 .hl{color:var(--yellow);text-shadow:0 4px 0 var(--yellow-dark),0 8px 24px rgba(12,43,80,.35)}
+.hero p{max-width:620px;margin:18px auto 0;color:#EAF6FF;font-size:16.5px;font-weight:600;text-shadow:0 1px 0 rgba(12,43,80,.4)}
+.hero-cta{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:30px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--sky-soft);
+  border-radius:999px;padding:10px 18px;font-size:13.5px;font-weight:800;color:var(--ink)}
+.badge i{width:10px;height:10px;border-radius:50%;background:var(--yellow)}
+.badge.live{background:var(--ok-bg);border-color:#A9DECB;color:var(--ok)}.badge.live i{background:var(--ok)}
+.badge.err{background:var(--bad-bg);border-color:#EFC0B6;color:var(--bad)}.badge.err i{background:var(--bad)}
+
+/* Kartu melayang di hero */
+.float-card{position:absolute;background:#fff;border:3px solid #fff;border-radius:16px;
+  box-shadow:0 16px 34px -14px rgba(12,43,80,.4);padding:12px 18px;display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:800;color:var(--ink)}
+.float-card .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;border-bottom:3px solid rgba(0,0,0,.15)}
+.float-card small{display:block;font-weight:600;color:var(--sky-deep);font-size:11px}
+.fc-1{left:-8px;top:130px;transform:rotate(-6deg);animation:bob 5s ease-in-out infinite}
+.fc-1 .ic{background:var(--yellow)}
+.fc-2{right:-8px;top:160px;transform:rotate(5deg);animation:bob 6s .8s ease-in-out infinite}
+.fc-2 .ic{background:var(--red);color:#fff}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -10px}}
+
+/* ===== Dashboard ===== */
+.dash-frame{background:var(--yellow);border-radius:30px;padding:12px;border:4px solid var(--navy);
+  box-shadow:0 24px 50px -20px rgba(12,43,80,.55)}
+.dashboard{background:#fff;border-radius:22px;padding:22px}
+.dash-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:2px 4px 16px}
+.dash-top h2{font-family:'Titan One',cursive;font-size:22px;color:var(--navy)}
+.dash-top p{font-size:13.5px;color:var(--sky-deep);font-weight:600}
+.dash-tabs{display:flex;gap:8px;background:var(--yellow);border:3px solid var(--navy);border-radius:14px;padding:6px}
+.dash-tabs span{font-family:'Titan One',cursive;font-size:13px;letter-spacing:1px;color:var(--navy);padding:7px 18px;border-radius:99px}
+.dash-tabs span.on{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red-dark)}
+.dash-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+
+.panel{background:#fff;border:3px solid var(--navy);border-radius:18px;overflow:hidden;box-shadow:0 6px 0 rgba(20,64,111,.12)}
+.panel-title{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:var(--red);
+  color:#fff;font-family:'Titan One',cursive;font-size:14px;letter-spacing:.6px;border-bottom:3px solid var(--red-dark)}
+.panel-title span:last-child{font-family:'Baloo 2',cursive;font-size:11px;font-weight:800;color:#FFD9D5;letter-spacing:.4px}
+.panel.sky .panel-title{background:var(--sky-deep);border-bottom-color:var(--navy-deep)}
+.panel.yellow .panel-title{background:var(--yellow);color:var(--navy);border-bottom-color:var(--yellow-dark)}
+.panel.yellow .panel-title span:last-child{color:#8A6D00}
+
+.cam-wrap{margin:18px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,var(--sky-soft),var(--sky));aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border:3px solid var(--navy)}
+#webcam-container{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#webcam-container canvas,#webcam-container video{width:100%!important;height:100%!important;object-fit:cover;display:block}
+.cam-id{display:flex;justify-content:space-between;margin:0 18px 8px;font-size:11px;font-weight:800;color:var(--sky-deep);letter-spacing:.6px}
+.prediction{padding:10px 20px 20px;text-align:center}
+.prediction-label{display:inline-flex;align-items:center;gap:10px;background:var(--cream);border:3px solid var(--navy);
+  border-radius:999px;padding:9px 24px;font-family:'Titan One',cursive;font-size:19px;color:var(--navy)}
+.prediction-label .ic{font-size:23px}
+.conf-track{margin:14px auto 6px;max-width:340px;height:12px;border-radius:999px;background:var(--sky-soft);border:2px solid var(--navy);overflow:hidden}
+.conf-fill{height:100%;width:0%;background:repeating-linear-gradient(45deg,var(--red) 0 10px,var(--red-dark) 10px 20px);transition:width .3s}
+.conf-text{font-size:12.5px;font-weight:800;color:var(--sky-deep)}
+.cam-tags{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.chip{border:2.5px solid var(--navy);background:#fff;border-radius:999px;padding:5px 14px;font-size:12.5px;font-weight:800;color:var(--navy)}
+.chip.alt{background:var(--yellow)}
+
+.col{display:flex;flex-direction:column;gap:18px}
+.status-list{padding:6px 20px 12px}
+.status-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:2px dashed var(--sky-soft);font-size:13.5px}
+.status-item:last-child{border-bottom:0}
+.status-label{color:var(--sky-deep);font-weight:700}
+.status-value{font-weight:800;color:var(--navy);text-align:right}
+.status-value.ok{color:var(--ok)}.status-value.off{color:var(--bad)}.status-value.other{color:var(--sky-deep)}
+
+.controls{padding:16px 20px 18px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.controls .btn{padding:11px 10px;font-size:13.5px}
+.info{padding:0 20px 18px;font-size:12.5px;color:var(--sky-deep);line-height:1.9;font-weight:600}
+.info strong{color:var(--navy)}
+
+.log-panel{margin-top:18px}
+.log-box{font-size:13.5px;font-weight:600;color:var(--navy);padding:14px 20px;height:80px;overflow-y:auto;line-height:1.9;background:var(--cream)}
+.log-box:empty::before{content:'Menunggu misi…'}
+
+/* ===== MINI GAME STYLES ===== */
+.game-container{position:relative;width:100%;height:380px;background:#5BBCEC;border-radius:16px;overflow:hidden;border:3px solid var(--navy);margin:18px 0 10px}
+#gameCanvas{width:100%;height:100%;display:block;cursor:pointer}
+.game-hud{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--navy);color:#fff;font-family:'Titan One',cursive;font-size:15px;border-radius:14px;margin-bottom:12px}
+.game-controls{display:flex;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.game-overlay{position:absolute;inset:0;background:rgba(20,64,111,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;z-index:5}
+.game-overlay h3{font-family:'Titan One',cursive;font-size:28px;color:var(--yellow);text-shadow:0 3px 0 var(--navy-deep);margin-bottom:8px}
+.game-overlay p{font-size:14.5px;margin-bottom:14px;max-width:440px;line-height:1.5}
+
+/* Character Selector */
+.char-selector{display:flex;gap:14px;margin:14px 0 20px;justify-content:center}
+.char-card{background:#fff;border:3px solid var(--sky-soft);border-radius:16px;padding:12px 18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s;color:var(--navy);font-family:'Titan One',cursive;font-size:13px}
+.char-card canvas{width:46px;height:46px;display:block}
+.char-card.skye canvas{background:#FCE4EC;border-radius:50%}
+.char-card.marshall canvas{background:#FBE4DE;border-radius:50%}
+.char-card.chase canvas{background:#BDE3F8;border-radius:50%}
+.char-card:hover{transform:scale(1.05)}
+.char-card.selected{border-color:var(--yellow);background:var(--yellow);box-shadow:0 0 0 3px var(--red)}
+
+/* ===== Langkah cara pakai ===== */
+.section-head{text-align:center;margin:64px 0 26px}
+.section-head .pre{display:inline-block;background:var(--navy);color:#fff;font-family:'Titan One',cursive;font-size:13px;
+  letter-spacing:2px;padding:6px 20px;border-radius:10px;transform:rotate(-2deg);margin-bottom:14px}
+.section-head h2{font-family:'Titan One',cursive;font-size:clamp(26px,4vw,38px);color:#fff;letter-spacing:.5px;text-shadow:0 4px 0 var(--sky-deep)}
+.section-head p{color:#EAF6FF;font-weight:700;margin-top:10px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{background:#fff;border:3px solid var(--navy);border-radius:20px;padding:26px;box-shadow:0 8px 0 rgba(12,43,80,.25)}
+.step .num{width:44px;height:44px;border-radius:12px;background:var(--red);color:#fff;border-bottom:4px solid var(--red-dark);
+  font-family:'Titan One',cursive;display:grid;place-items:center;font-size:18px}
+.step:nth-child(2) .num{background:var(--yellow);color:var(--navy);border-bottom-color:var(--yellow-dark)}
+.step:nth-child(3) .num{background:var(--sky-deep);border-bottom-color:var(--navy-deep)}
+.step h3{margin-top:16px;font-family:'Titan One',cursive;font-size:17px;color:var(--navy);letter-spacing:.4px}
+.step p{margin-top:8px;font-size:13.5px;color:var(--sky-deep);font-weight:600}
+
+/* ===== Kode micro:bit ===== */
+.mb-card{background:var(--navy);border:4px solid var(--navy-deep);border-radius:26px;padding:34px;margin-top:18px;color:#CFE6F7;box-shadow:0 20px 44px -20px rgba(12,43,80,.6)}
+.mb-card h3{font-family:'Titan One',cursive;font-size:21px;color:#fff;letter-spacing:.5px}
+.mb-card .tag{display:inline-block;background:var(--yellow);color:var(--navy);font-family:'Titan One',cursive;font-size:12px;
+  letter-spacing:1.5px;padding:5px 16px;border-radius:99px;margin-bottom:14px;transform:rotate(-1.5deg)}
+.mb-card p{margin-top:10px;font-size:14px;color:#9FC4E2;font-weight:600;max-width:660px}
+.mb-card p strong{color:var(--yellow)}
+.mb-card pre{margin-top:18px;background:var(--navy-deep);border:3px solid #2A5B8C;border-radius:14px;padding:20px;font-size:13px;line-height:1.75;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;color:#FFD36E}
+.mb-card pre .k{color:#7FC8F2}.mb-card pre .s{color:#B4E3A8}
+
+footer{margin-top:70px;background:var(--navy);border-top:6px solid var(--red);color:#9FC4E2;padding:44px 26px}
+.foot-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.foot-inner .brand{color:#fff}
+.foot-inner .brand .shield{transform:rotate(0)}
+.foot-paws{font-size:20px;letter-spacing:8px;color:var(--yellow)}
+footer small{font-size:12.5px;font-weight:600}
+
+@media(max-width:960px){
+  .nav-links{display:none}
+  .fc-1,.fc-2{display:none}
+  .dash-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .wrap{padding:0 14px}
+  .hero{padding:44px 0 34px}
+  .controls{grid-template-columns:1fr}
+  .btn{width:100%}
+  .hero-cta{flex-direction:column}
+  .dash-tabs span{padding:7px 12px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ===== STRIP PENGUMUMAN ===== -->
+<div class="ticker">
+  <b>🐾 Siap bertugas? Kendalikan micro:bit dengan gestur!</b>
+  <a class="go" href="#dashboard">MULAI MISI!</a>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav>
+    <div class="brand"><span class="shield">🐾</span> Gesture Patrol</div>
+    <div class="nav-links">
+      <a href="#beranda" class="active"><span class="ic">🏠</span> Beranda</a>
+      <a href="#dashboard"><span class="ic">🎮</span> Dashboard</a>
+      <a href="#game"><span class="ic">🐶</span> Flappy Patrol</a>
+      <a href="#cara"><span class="ic">🦴</span> Cara Pakai</a>
+      <a href="#kode"><span class="ic">💻</span> Kode micro:bit</a>
+    </div>
+    <button class="btn btn-yellow btn-sm" onclick="connectBluetooth()">Hubungkan</button>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero" id="beranda">
+    <div class="float-card fc-1"><span class="ic">👌</span><span>Gestur Oke<small>Ikon centang di micro:bit</small></span></div>
+    <div class="float-card fc-2"><span class="ic">✌️</span><span>Gestur Peace<small>Ikon damai di micro:bit</small></span></div>
+    <span class="hero-tag">GESTUR PATROL</span>
+    <h1>Kendali Ikon micro:bit dengan <span class="hl">Gestur Tangan</span></h1>
+    <p>Tunjukkan gestur <strong>Oke</strong> atau <strong>Peace</strong> ke kamera. Website membedakan gestur lewat model Teachable Machine, lalu mengirim perintah ke micro:bit lewat Bluetooth untuk mengganti ikonnya. Tidak ada misi yang terlalu besar, tidak ada gestur yang terlalu kecil!</p>
+    <div class="hero-cta">
+      <button class="btn btn-red" id="btn-connect" onclick="connectBluetooth()">🐾 Hubungkan micro:bit</button>
+      <button class="btn btn-navy" id="btn-start" onclick="startCamera()">Mulai Kamera</button>
+      <span class="badge" id="badge"><i></i><span id="badgeText">Belum terhubung</span></span>
+    </div>
+  </header>
+
+  <!-- ===== DASHBOARD ===== -->
+  <section id="dashboard">
+    <div class="dash-frame">
+      <div class="dashboard">
+        <div class="dash-top">
+          <div><h2>Panel Misi Gestur</h2><p>Deteksi langsung dari kamera kamu</p></div>
+          <div class="dash-tabs"><span class="on">LIVE</span><span>OKE</span><span>PEACE</span></div>
+        </div>
+
+        <div class="dash-grid">
+          <!-- Kamera -->
+          <div class="panel sky">
+            <div class="panel-title"><span>KAMERA &amp; DETEKSI</span><span>◉ LIVE</span></div>
+            <div class="cam-wrap"><div id="webcam-container"></div></div>
+            <div class="cam-id"><span>CAM_01 / GESTUR</span><span id="camState">KAMERA MATI</span></div>
+            <div class="prediction">
+              <div class="prediction-label"><span class="ic" id="predIcon">🖐️</span><span id="prediction-label">Menunggu kamera…</span></div>
+              <div class="conf-track"><div class="conf-fill" id="confFill"></div></div>
+              <div class="conf-text" id="prediction-confidence">Kepercayaan: -</div>
+              <div class="cam-tags"><span class="chip">👌 Oke</span><span class="chip alt">✌️ Peace</span><span class="chip">≥ 90%</span></div>
+            </div>
+          </div>
+
+          <!-- Status + kontrol -->
+          <div class="col">
+            <div class="panel">
+              <div class="panel-title"><span>STATUS PATROLI</span><span>Real-time</span></div>
+              <div class="status-list">
+                <div class="status-item"><span class="status-label">Bluetooth</span><span class="status-value off" id="bt-status">Belum Terhubung</span></div>
+                <div class="status-item"><span class="status-label">Kamera</span><span class="status-value other" id="cam-status">Mati</span></div>
+                <div class="status-item"><span class="status-label">Deteksi Saat Ini</span><span class="status-value other" id="color-status">-</span></div>
+                <div class="status-item"><span class="status-label">Ikon micro:bit</span><span class="status-value other" id="icon-status">Siaga</span></div>
+                <div class="status-item"><span class="status-label">Perintah Terakhir</span><span class="status-value other" id="last-command">-</span></div>
+              </div>
+            </div>
+
+            <div class="panel yellow">
+              <div class="panel-title"><span>KONTROL MISI</span><span>4 tombol</span></div>
+              <div class="controls">
+                <button class="btn btn-red" id="btn-connect2" onclick="connectBluetooth()">Hubungkan micro:bit</button>
+                <button class="btn btn-outline" id="btn-disconnect" onclick="disconnectBluetooth()" disabled>Putuskan</button>
+                <button class="btn btn-navy" id="btn-start2" onclick="startCamera()">Mulai Kamera</button>
+                <button class="btn btn-danger" id="btn-stop" onclick="stopCamera()" disabled>Stop Kamera</button>
+              </div>
+              <p class="info">
+                • Gestur harus terdeteksi <strong>stabil sekitar 0,7 detik</strong> baru dikirim ke micro:bit<br>
+                • Dikirim <strong>sekali saja</strong>, lalu terkunci walau gestur berganti-ganti<br>
+                • Jauhkan tangan dari kamera sekitar <strong>1,5 detik</strong> untuk membuka kunci<br>
+                • Setelah itu deteksi berikutnya dikirim sekali lagi
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel log-panel">
+          <div class="panel-title"><span>LOG PATROLI</span><span>Terbaru di atas</span></div>
+          <div class="log-box" id="log"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MINI GAME SECTION (FLAPPY PAW PATROL) ===== -->
+  <section id="game" style="margin-top: 50px;">
+    <div class="dash-frame">
+      <div class="dashboard">
+        <div class="dash-top">
+          <div><h2>🐶 Flappy Paw Patrol (Sangat Mudah!)</h2><p>Bantu anjing Paw Patrol terbang santai melewati pilar! 🏰</p></div>
+          <button class="btn btn-red btn-sm" onclick="resetGameOverlay()">🎮 Pilih Karakter &amp; Main</button>
+        </div>
+
+        <div class="game-hud">
+          <span>🐾 Karakter: <strong id="hudChar" style="color:var(--yellow)">Skye 🩷</strong></span>
+          <span>🏆 Skor: <strong id="gameScore" style="color:#FFCB05">0</strong></span>
+          <span>🥇 Rekor Terbaik: <strong id="gameHighScore" style="color:#1E9E6A">0</strong></span>
+        </div>
+
+        <div class="game-container">
+          <canvas id="gameCanvas" width="800" height="380"></canvas>
+          
+          <div class="game-overlay" id="gameOverlay">
+            <h3>🐾 FLAPPY PAW PATROL</h3>
+            <p>Pilih anjing favoritmu! Game ini sudah dibuat <strong>sangat mudah &amp; santai</strong>.<br><small>Tekan Tombol / Spasi / Gestur Kamera (👌 Oke / ✌️ Peace) untuk terbang!</small></p>
+            
+            <!-- Character Choice with Canvas Icons -->
+            <div class="char-selector">
+              <div class="char-card skye selected" onclick="selectChar('skye')">
+                <canvas id="previewSkye" width="46" height="46"></canvas>
+                <span>SKYE</span>
+                <small style="color:#E91E63;font-size:10px">Pink</small>
+              </div>
+              <div class="char-card marshall" onclick="selectChar('marshall')">
+                <canvas id="previewMarshall" width="46" height="46"></canvas>
+                <span>MARSHALL</span>
+                <small style="color:#EE3B33;font-size:10px">Merah</small>
+              </div>
+              <div class="char-card chase" onclick="selectChar('chase')">
+                <canvas id="previewChase" width="46" height="46"></canvas>
+                <span>CHASE</span>
+                <small style="color:#2E86C9;font-size:10px">Biru</small>
+              </div>
+            </div>
+
+            <button class="btn btn-yellow" onclick="startMiniGame()">🚀 TERBANG SEKARANG!</button>
+          </div>
+        </div>
+
+        <div class="game-controls">
+          <button class="btn btn-yellow btn-sm" style="width: 100%; max-width: 400px; padding: 14px; font-size: 16px;" onclick="triggerGameAction('JUMP')">🚀 LONCAT / FLAP! (Spasi / Klik Layar / Gestur Kamera)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CARA PAKAI ===== -->
+  <section id="cara">
+    <div class="section-head"><span class="pre">🐾 PANDUAN MISI</span><h2>Cara Pakai dalam 3 Langkah</h2><p>Dari koneksi Bluetooth sampai ikon berubah di micro:bit.</p></div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>Hubungkan micro:bit</h3><p>Klik "Hubungkan micro:bit", pilih perangkat <strong>BBC micro:bit</strong> kamu. Pastikan program Bluetooth UART sudah jalan di micro:bit.</p></div>
+      <div class="step"><div class="num">2</div><h3>Mulai Kamera</h3><p>Klik "Mulai Kamera" dan izinkan akses kamera. Model gestur Oke &amp; Peace akan dimuat otomatis dari Teachable Machine.</p></div>
+      <div class="step"><div class="num">3</div><h3>Tunjukkan Gestur</h3><p>Tahan gestur <strong>👌 Oke</strong> atau <strong>✌️ Peace</strong> di depan kamera selama 0,7 detik. Ikon di micro:bit langsung berganti — misi sukses!</p></div>
+    </div>
+  </section>
+
+  <!-- ===== KODE MICRO:BIT ===== -->
+  <section id="kode">
+    <div class="mb-card">
+      <span class="tag">🐾 FILE MISI</span>
+      <h3>Program di sisi micro:bit</h3>
+      <p>Di MakeCode, pakai ekstensi <strong>Bluetooth UART</strong>. Ketika menerima teks dari website, micro:bit mengganti ikon sesuai gestur: <strong>"oke"</strong> menampilkan centang, <strong>"peace"</strong> menampilkan tanda damai (V).</p>
+<pre><span class="k">bluetooth</span>.startUartService()
+<span class="k">bluetooth</span>.onBluetoothReceived(function (cmd) {
+    <span class="k">if</span> (cmd.includes(<span class="s">"oke"</span>)) {
+        basic.showIcon(IconNames.Yes)
+    } <span class="k">else if</span> (cmd.includes(<span class="s">"peace"</span>)) {
+        basic.showLeds(<span class="s">`
+            # . . . #
+            # . . . #
+            . # . # .
+            . . # . .
+            . . # . .
+        `</span>)
+    }
+})</pre>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-inner">
+    <div class="brand"><span class="shield">🐾</span> Gesture Patrol</div>
+    <div class="foot-paws">🐾 🐾 🐾</div>
+    <small>Gestur Oke &amp; Peace → ikon micro:bit · dibuat dengan Teachable Machine</small>
+  </div>
+</footer>
+
+<script>
+  // ==================== KONFIGURASI ====================
+  const MODEL_URL = "https://teachablemachine.withgoogle.com/models/SPsW2RXe4n/";
+  const CONFIDENCE_THRESHOLD = 0.90;          
+  const ALLOWED_LABELS = ["oke", "peace"];
+
+  const STABLE_MS = 700;           
+  const CLEAR_MS = 1500;           
+  const COOLDOWN_MS = 3000;        
+  const PRESENCE_THRESHOLD = 0.60; 
+
+  const UART_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+  const UART_RX      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
+  // ==================== STATE ====================
+  let model = null;
+  let webcam = null;
+  let maxPredictions = 0;
+  let isPredicting = false;
+
+  let bluetoothDevice = null;
+  let writeCharacteristic = null;
+  let isBluetoothConnected = false;
+
+  let candidateLabel = null;    
+  let candidateSince = 0;       
+  let locked = false;           
+  let lastSendTime = 0;
+  let lastPresenceTime = 0;     
+  let isSending = false;
+
+  function resetDetection() {
+    candidateLabel = null;
+    candidateSince = 0;
+    locked = false;
+    isSending = false;
+  }
+
+  // ==================== UI HELPERS ====================
+  function log(msg) {
+    const el = document.getElementById("log");
+    const time = new Date().toLocaleTimeString("id-ID");
+    el.innerHTML = `[${time}] ${msg}<br>` + el.innerHTML;
+  }
+
+  function setBadge(cls, text) {
+    const el = document.getElementById("badge");
+    el.className = "badge" + (cls ? " " + cls : "");
+    document.getElementById("badgeText").textContent = text;
+  }
+
+  function setBtStatus(connected) {
+    const el = document.getElementById("bt-status");
+    el.textContent = connected ? "Terhubung" : "Belum Terhubung";
+    el.className = "status-value " + (connected ? "ok" : "off");
+    document.getElementById("btn-connect").disabled = connected;
+    document.getElementById("btn-connect2").disabled = connected;
+    document.getElementById("btn-disconnect").disabled = !connected;
+    setBadge(connected ? "live" : "", connected ? "micro:bit terhubung" : "Belum terhubung");
+  }
+
+  function setCamStatus(on) {
+    document.getElementById("cam-status").textContent = on ? "Aktif" : "Mati";
+    document.getElementById("cam-status").className = "status-value " + (on ? "ok" : "other");
+    document.getElementById("camState").textContent = on ? "KAMERA AKTIF" : "KAMERA MATI";
+    document.getElementById("btn-start").disabled = on;
+    document.getElementById("btn-start2").disabled = on;
+    document.getElementById("btn-stop").disabled = !on;
+  }
+
+  function setColorStatus(label) {
+    const el = document.getElementById("color-status");
+    el.textContent = label || "-";
+    el.className = "status-value";
+    if (label === "oke" || label === "peace") el.classList.add("ok");
+    else el.classList.add("other");
+  }
+
+  function setIconStatus(text) {
+    const el = document.getElementById("icon-status");
+    el.textContent = text;
+    if (text === "Siaga") el.className = "status-value other";
+    else el.className = "status-value ok";
+  }
+
+  function setLastCommand(label) {
+    document.getElementById("last-command").textContent = label || "-";
+  }
+
+  function setPrediction(label, conf) {
+    document.getElementById("prediction-label").textContent = label;
+    const icon = label === "oke" ? "👌" : label === "peace" ? "✌️" : "🖐️";
+    document.getElementById("predIcon").textContent = icon;
+    document.getElementById("prediction-confidence").textContent = "Kepercayaan: " + (conf * 100).toFixed(1) + "%";
+    document.getElementById("confFill").style.width = (conf * 100) + "%";
+  }
+
+  // ==================== BLUETOOTH ====================
+  async function connectBluetooth() {
+    try {
+      if (!navigator.bluetooth) {
+        throw new Error("Browser tidak mendukung Web Bluetooth. Gunakan Chrome / Edge.");
+      }
+
+      log("Mencari micro:bit...");
+      setBadge("", "Mencari micro:bit...");
+      bluetoothDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: "BBC micro:bit" }],
+        optionalServices: [UART_SERVICE]
+      });
+
+      bluetoothDevice.addEventListener("gattserverdisconnected", onDisconnected);
+
+      log("Menghubungkan ke " + bluetoothDevice.name + "...");
+      const server = await bluetoothDevice.gatt.connect();
+      const service = await server.getPrimaryService(UART_SERVICE);
+      writeCharacteristic = await service.getCharacteristic(UART_RX);
+
+      isBluetoothConnected = true;
+      setBtStatus(true);
+      setIconStatus("Siaga");
+      log("Berhasil terhubung ke micro:bit!");
+    } catch (err) {
+      log("Gagal koneksi Bluetooth: " + err.message);
+      console.error(err);
+      setBtStatus(false);
+    }
+  }
+
+  function onDisconnected() {
+    isBluetoothConnected = false;
+    writeCharacteristic = null;
+    resetDetection();
+    setBtStatus(false);
+    setIconStatus("Siaga");
+    setLastCommand("-");
+    log("Koneksi Bluetooth terputus");
+  }
+
+  function disconnectBluetooth() {
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+      bluetoothDevice.gatt.disconnect();
+    }
+    onDisconnected();
+  }
+
+  async function sendCommand(label) {
+    triggerGameAction('JUMP');
+
+    if (!isBluetoothConnected || !writeCharacteristic) {
+      log("Deteksi " + label + " (micro:bit belum terhubung)");
+      return false;
+    }
+
+    try {
+      const data = new TextEncoder().encode(label + "\n");
+      await writeCharacteristic.writeValue(data);
+
+      setLastCommand(label);
+      setIconStatus(label === "oke" ? "👌 Centang" : "✌️ Peace");
+      log("Perintah " + label + " terkirim ke micro:bit");
+      return true;
+    } catch (err) {
+      log("Gagal kirim perintah: " + err.message);
+      console.error(err);
+      return false;
+    }
+  }
+
+  // ==================== TEACHABLE MACHINE ====================
+  async function loadModel() {
+    log("Memuat model gestur dari Teachable Machine...");
+    const modelURL = MODEL_URL + "model.json";
+    const metadataURL = MODEL_URL + "metadata.json";
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+    log("Model AI siap (" + maxPredictions + " kelas)");
+  }
+
+  async function startCamera() {
+    try {
+      if (!model) await loadModel();
+
+      log("Meminta akses kamera...");
+      webcam = new tmImage.Webcam(420, 315, true); 
+      await webcam.setup();
+      await webcam.play();
+      window.requestAnimationFrame(loop);
+
+      const container = document.getElementById("webcam-container");
+      container.innerHTML = "";
+      container.appendChild(webcam.canvas);
+
+      isPredicting = true;
+      resetDetection();
+      setIconStatus("Siaga");
+      setCamStatus(true);
+      log("Kamera berhasil dinyalakan!");
+    } catch (err) {
+      let msg = err.message || err;
+      log("Gagal membuka kamera: " + msg);
+      console.error("Camera Error:", err);
+      alert("Kamera gagal diakses!\n\nPastikan:\n1. Izinkan akses kamera di browser.\n2. Kamera tidak dipakai aplikasi lain.\n3. Jalankan via Live Server atau HTTPS.");
+    }
+  }
+
+  function stopCamera() {
+    isPredicting = false;
+    if (webcam) {
+      webcam.stop();
+      webcam = null;
+    }
+    document.getElementById("webcam-container").innerHTML = "";
+    setPrediction("Kamera dimatikan", 0);
+    document.getElementById("prediction-confidence").textContent = "Kepercayaan: -";
+    setCamStatus(false);
+    setColorStatus("-");
+    setIconStatus("Siaga");
+    resetDetection();
+    log("Kamera dimatikan");
+  }
+
+  async function loop() {
+    if (!isPredicting || !webcam) return;
+    webcam.update();
+    await predict();
+    window.requestAnimationFrame(loop);
+  }
+
+  async function predict() {
+    if (!webcam || !webcam.canvas) return;
+    const prediction = await model.predict(webcam.canvas);
+
+    let best = prediction[0];
+    for (let i = 1; i < maxPredictions; i++) {
+      if (prediction[i].probability > best.probability) {
+        best = prediction[i];
+      }
+    }
+
+    const label = best.className;
+    const conf = best.probability;
+    const now = performance.now();
+
+    setPrediction(label, conf);
+    setColorStatus(label);
+
+    const isAllowed = ALLOWED_LABELS.includes(label);
+    const strong = isAllowed && conf >= CONFIDENCE_THRESHOLD;
+    const present = isAllowed && conf >= PRESENCE_THRESHOLD;
+
+    if (locked) {
+      if (present) {
+        lastPresenceTime = now;
+      } else if (now - lastPresenceTime >= CLEAR_MS && now - lastSendTime >= COOLDOWN_MS) {
+        locked = false;
+        candidateLabel = null;
+        setIconStatus("Siaga");
+        log("Siap menerima deteksi berikutnya");
+      }
+      return;
+    }
+
+    if (strong) {
+      if (label !== candidateLabel) {
+        candidateLabel = label;
+        candidateSince = now;
+        setIconStatus("Memastikan " + label + "...");
+      } else if (now - candidateSince >= STABLE_MS && !isSending) {
+        isSending = true;
+        const ok = await sendCommand(label);
+        isSending = false;
+
+        locked = true;
+        lastSendTime = performance.now();
+        lastPresenceTime = lastSendTime;
+        candidateLabel = null;
+      }
+    } else {
+      const stillSame = present && label === candidateLabel;
+      if (candidateLabel && !stillSame) {
+        candidateLabel = null;
+        setIconStatus("Siaga");
+      }
+    }
+  }
+
+  // ==================== VECTOR DRAWING PAW PATROL ====================
+  // Menggambar karakter Skye, Marshall, dan Chase persis seperti ikon gambar
+  function drawPawCharacter(c, x, y, charKey, scale = 1, rotation = 0) {
+    c.save();
+    c.translate(x, y);
+    c.rotate(rotation);
+    c.scale(scale, scale);
+
+    c.lineWidth = 2.5;
+    c.strokeStyle = "#14406F";
+
+    if (charKey === "skye") {
+      // SKYE (Pink & Tan)
+      // Ekor
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kaki
+      c.fillStyle = "#F3C892";
+      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Badan (Pink)
+      c.fillStyle = "#EC407A";
+      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kantong Vest
+      c.fillStyle = "#F48FB1";
+      c.beginPath(); c.roundRect(-6, 7, 12, 5, 2); c.fill(); c.stroke();
+      // Telinga (Cokelat)
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kepala (Tan)
+      c.fillStyle = "#F3C892";
+      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
+      // Topi/Helm Pink
+      c.fillStyle = "#EC407A";
+      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
+      c.fillRect(-13, -11, 26, 3.5); c.strokeRect(-13, -11, 26, 3.5);
+      // Goggles Kuning
+      c.fillStyle = "#FBC02D";
+      c.beginPath(); c.arc(-5, -13, 3.2, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.arc(5, -13, 3.2, 0, Math.PI*2); c.fill(); c.stroke();
+      // Mata & Hidung
+      c.fillStyle = "#14406F";
+      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
+    } 
+    else if (charKey === "marshall") {
+      // MARSHALL (Putih & Merah)
+      // Ekor
+      c.fillStyle = "#14406F";
+      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kaki Putih
+      c.fillStyle = "#FFFFFF";
+      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Badan Putih + Baju Pemadam Merah
+      c.fillStyle = "#FFFFFF";
+      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle = "#E53935";
+      c.beginPath(); c.ellipse(0, 8, 10, 7, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Telinga Putih + Hitam
+      c.fillStyle = "#FFFFFF";
+      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle = "#14406F";
+      c.beginPath(); c.arc(-13, 0, 2, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(13, 0, 2, 0, Math.PI*2); c.fill();
+      // Kepala Putih
+      c.fillStyle = "#FFFFFF";
+      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
+      // Helm Pemadam Merah
+      c.fillStyle = "#E53935";
+      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
+      c.fillRect(-14, -11, 28, 3.5); c.strokeRect(-14, -11, 28, 3.5);
+      // Lencana Kuning
+      c.fillStyle = "#FBC02D";
+      c.beginPath(); c.roundRect(-3.5, -16, 7, 5, 1.5); c.fill(); c.stroke();
+      // Mata & Hidung
+      c.fillStyle = "#14406F";
+      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
+    } 
+    else {
+      // CHASE (Cokelat & Biru Polisi)
+      // Ekor
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kaki Cokelat
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Badan Cokelat + Baju Polisi Biru
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle = "#1E88E5";
+      c.beginPath(); c.ellipse(0, 8, 10, 7, 0, 0, Math.PI*2); c.fill(); c.stroke();
+      // Tombol Kuning
+      c.fillStyle = "#FBC02D";
+      c.beginPath(); c.arc(0, 9, 2, 0, Math.PI*2); c.fill(); c.stroke();
+      // Telinga Cokelat
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
+      // Kepala Cokelat
+      c.fillStyle = "#8D5B28";
+      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
+      // Topi Polisi Biru
+      c.fillStyle = "#1E88E5";
+      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
+      // Visor Topi Biru Tua
+      c.fillStyle = "#0D47A1";
+      c.fillRect(-14, -11, 28, 3.5); c.strokeRect(-14, -11, 28, 3.5);
+      // Lencana Polisi Kuning
+      c.fillStyle = "#FBC02D";
+      c.beginPath(); c.arc(0, -13, 3, 0, Math.PI*2); c.fill(); c.stroke();
+      // Mata & Hidung
+      c.fillStyle = "#14406F";
+      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
+    }
+
+    c.restore();
+  }
+
+  // Render Karakter di Kartu Pilihan Overlay
+  function renderPreviewCards() {
+    ['skye', 'marshall', 'chase'].forEach(key => {
+      const capKey = key.charAt(0).toUpperCase() + key.slice(1);
+      const cvs = document.getElementById("preview" + capKey);
+      if (cvs) {
+        const c = cvs.getContext("2d");
+        c.clearRect(0, 0, 46, 46);
+        drawPawCharacter(c, 23, 22, key, 0.9, 0);
+      }
+    });
+  }
+
+  // ==================== MINI GAME LOGIC (EASY FLAPPY PATROL) ====================
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let gameRunning = false;
+  let gameLoopId = null;
+  let score = 0;
+  let highScore = 0;
+  let frameCount = 0;
+
+  const characters = {
+    skye: { name: "Skye 🩷", color: "#EC407A" },
+    marshall: { name: "Marshall 🔴", color: "#E53935" },
+    chase: { name: "Chase 🔵", color: "#1E88E5" }
+  };
+  let selectedCharKey = "skye";
+
+  function selectChar(key) {
+    selectedCharKey = key;
+    document.querySelectorAll(".char-card").forEach(c => c.classList.remove("selected"));
+    document.querySelector(".char-card." + key).classList.add("selected");
+    document.getElementById("hudChar").textContent = characters[key].name;
+  }
+
+  // Pengaturan Fisika Game Sangat Mudah
+  const dog = {
+    x: 120,
+    y: 180,
+    radius: 18,
+    velocity: 0,
+    gravity: 0.22,       // Sangat ringan / melayang santai
+    jumpForce: -5.8,      // Lompatan halus
+    rotation: 0
+  };
+
+  let pipes = [];
+  let treats = [];
+  const pipeGap = 175;    // Celah sangat lebar!
+  const pipeWidth = 55;
+  const pipeSpeed = 1.6;  // Pelan & santai
+
+  function resetGameOverlay() {
+    gameRunning = false;
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    document.getElementById("gameOverlay").style.display = "flex";
+    renderPreviewCards();
+  }
+
+  function startMiniGame() {
+    document.getElementById("gameOverlay").style.display = "none";
+    gameRunning = true;
+    score = 0;
+    frameCount = 0;
+    
+    dog.y = 180;
+    dog.velocity = 0;
+    dog.rotation = 0;
+    pipes = [];
+    treats = [];
+
+    document.getElementById("gameScore").textContent = "0";
+    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    gameLoop();
+  }
+
+  function triggerGameAction(action) {
+    if (!gameRunning) return;
+    if (action === 'JUMP') {
+      dog.velocity = dog.jumpForce;
+    }
+  }
+
+  // Event Listener Spasi & Klik
+  window.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'ArrowUp') {
+      if (gameRunning) {
+        e.preventDefault();
+        triggerGameAction('JUMP');
+      }
+    }
+  });
+
+  canvas.addEventListener('click', () => {
+    if (gameRunning) triggerGameAction('JUMP');
+  });
+
+  function gameLoop() {
+    if (!gameRunning) return;
+
+    frameCount++;
+
+    // Background Langit Cerah Paw Patrol
+    ctx.fillStyle = "#5BBCEC";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Awan Vektor
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.beginPath();
+    ctx.arc((150 - frameCount * 0.5) % 900 + 800, 60, 22, 0, Math.PI * 2);
+    ctx.arc((150 - frameCount * 0.5) % 900 + 825, 52, 30, 0, Math.PI * 2);
+    ctx.arc((150 - frameCount * 0.5) % 900 + 850, 60, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fisika Terbang Anjing
+    dog.velocity += dog.gravity;
+    dog.y += dog.velocity;
+    dog.rotation = Math.min(Math.PI / 6, Math.max(-Math.PI / 6, dog.velocity * 0.04));
+
+    // Kalah jika jatuh / keluar atas
+    if (dog.y + dog.radius >= canvas.height - 30 || dog.y - dog.radius <= 0) {
+      endGame();
+      return;
+    }
+
+    // Spawn Pilar (Jarak Jauh antar pilar = 150 frame)
+    if (frameCount % 150 === 0) {
+      const minHeight = 40;
+      const maxHeight = canvas.height - pipeGap - minHeight - 30;
+      const topPipeHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+      pipes.push({
+        x: canvas.width,
+        topHeight: topPipeHeight,
+        bottomY: topPipeHeight + pipeGap,
+        passed: false
+      });
+
+      // Spawn Biskuit 🦴
+      treats.push({
+        x: canvas.width + pipeWidth / 2,
+        y: topPipeHeight + pipeGap / 2,
+        collected: false
+      });
+    }
+
+    // Draw & Update Pilar
+    for (let i = pipes.length - 1; i >= 0; i--) {
+      let p = pipes[i];
+      p.x -= pipeSpeed;
+
+      // Warna Pilar Cerah
+      ctx.fillStyle = "#FFCB05";
+      ctx.strokeStyle = "#14406F";
+      ctx.lineWidth = 3;
+
+      // Pilar Atas
+      ctx.fillRect(p.x, 0, pipeWidth, p.topHeight);
+      ctx.strokeRect(p.x, 0, pipeWidth, p.topHeight);
+
+      // Pilar Bawah
+      const bottomHeight = canvas.height - p.bottomY - 30;
+      ctx.fillRect(p.x, p.bottomY, pipeWidth, bottomHeight);
+      ctx.strokeRect(p.x, p.bottomY, pipeWidth, bottomHeight);
+
+      // Cek Tabrakan Toleran (Sangat Longgar)
+      const hitRadius = dog.radius - 6; // Hitbox kecil agar gampang
+      if (
+        dog.x + hitRadius > p.x &&
+        dog.x - hitRadius < p.x + pipeWidth
+      ) {
+        if (dog.y - hitRadius < p.topHeight || dog.y + hitRadius > p.bottomY) {
+          endGame();
+          return;
+        }
+      }
+
+      // Tambah Skor saat lewati pilar
+      if (!p.passed && p.x + pipeWidth < dog.x) {
+        p.passed = true;
+        score += 1;
+        document.getElementById("gameScore").textContent = score;
+      }
+
+      if (p.x < -pipeWidth) pipes.splice(i, 1);
+    }
+
+    // Biskuit 🦴
+    for (let i = treats.length - 1; i >= 0; i--) {
+      let t = treats[i];
+      t.x -= pipeSpeed;
+
+      if (!t.collected) {
+        ctx.font = "24px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("🦴", t.x, t.y + 8);
+
+        // Ambil Biskuit
+        const dist = Math.hypot(dog.x - t.x, dog.y - t.y);
+        if (dist < dog.radius + 18) {
+          t.collected = true;
+          score += 2;
+          document.getElementById("gameScore").textContent = score;
+        }
+      }
+
+      if (t.x < -30) treats.splice(i, 1);
+    }
+
+    // Tanah Rumput
+    ctx.fillStyle = "#3AA346";
+    ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+    ctx.fillStyle = "#2E86C9";
+    ctx.fillRect(0, canvas.height - 30, canvas.width, 4);
+
+    // Gambar Karakter Anjing Sesuai Pilihan (Vektor Vektor Paw Patrol)
+    drawPawCharacter(ctx, dog.x, dog.y, selectedCharKey, 1.2, dog.rotation);
+
+    gameLoopId = requestAnimationFrame(gameLoop);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    if (score > highScore) {
+      highScore = score;
+      document.getElementById("gameHighScore").textContent = highScore;
+    }
+
+    const overlay = document.getElementById("gameOverlay");
+    overlay.style.display = "flex";
+    overlay.querySelector("h3").textContent = "🐾 MISI SELESAI!";
+    overlay.querySelector("p").innerHTML = `Skor Misi: <strong>${score}</strong> | Rekor Terbaik: <strong>${highScore}</strong><br>Bantu ${characters[selectedCharKey].name} terbang lagi!`;
+  }
+
+  // ==================== INIT ====================
+  window.addEventListener("load", () => {
+    log("Sistem siap. Klik 'Mulai Kamera' untuk tes kamera atau hubungkan micro:bit.");
+    renderPreviewCards();
+    if (!navigator.bluetooth) {
+      log("Peringatan: Browser tidak mendukung Web Bluetooth.");
+      document.getElementById("btn-connect").disabled = true;
+      document.getElementById("btn-connect2").disabled = true;
+      setBadge("err", "Bluetooth tidak didukung");
+    }
+  });
+</script>
+</body>
+</html>
