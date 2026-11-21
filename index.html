@@ -112,7 +112,7 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margi
 .dash-top h2{font-family:'Titan One',cursive;font-size:22px;color:var(--navy)}
 .dash-top p{font-size:13.5px;color:var(--sky-deep);font-weight:600}
 .dash-tabs{display:flex;gap:8px;background:var(--yellow);border:3px solid var(--navy);border-radius:14px;padding:6px}
-.dash-tabs span{font-family:'Titan One',cursive;font-size:13px;letter-spacing:1px;color:var(--navy);padding:7px 18px;border-radius:99px}
+.dash-tabs span{font-family:'Titan One',cursive;font-size:13px;letter-spacing:1px;color:var(--navy);padding:7px 18px;border-radius:9px}
 .dash-tabs span.on{background:var(--red);color:#fff;box-shadow:0 3px 0 var(--red-dark)}
 .dash-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
 
@@ -156,24 +156,42 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margi
 .log-box{font-size:13.5px;font-weight:600;color:var(--navy);padding:14px 20px;height:80px;overflow-y:auto;line-height:1.9;background:var(--cream)}
 .log-box:empty::before{content:'Menunggu misi…'}
 
-/* ===== MINI GAME STYLES ===== */
-.game-container{position:relative;width:100%;height:380px;background:#5BBCEC;border-radius:16px;overflow:hidden;border:3px solid var(--navy);margin:18px 0 10px}
-#gameCanvas{width:100%;height:100%;display:block;cursor:pointer}
-.game-hud{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--navy);color:#fff;font-family:'Titan One',cursive;font-size:15px;border-radius:14px;margin-bottom:12px}
-.game-controls{display:flex;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap}
-.game-overlay{position:absolute;inset:0;background:rgba(20,64,111,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;z-index:5}
-.game-overlay h3{font-family:'Titan One',cursive;font-size:28px;color:var(--yellow);text-shadow:0 3px 0 var(--navy-deep);margin-bottom:8px}
-.game-overlay p{font-size:14.5px;margin-bottom:14px;max-width:440px;line-height:1.5}
-
-/* Character Selector */
-.char-selector{display:flex;gap:14px;margin:14px 0 20px;justify-content:center}
-.char-card{background:#fff;border:3px solid var(--sky-soft);border-radius:16px;padding:12px 18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s;color:var(--navy);font-family:'Titan One',cursive;font-size:13px}
-.char-card canvas{width:46px;height:46px;display:block}
-.char-card.skye canvas{background:#FCE4EC;border-radius:50%}
-.char-card.marshall canvas{background:#FBE4DE;border-radius:50%}
-.char-card.chase canvas{background:#BDE3F8;border-radius:50%}
-.char-card:hover{transform:scale(1.05)}
-.char-card.selected{border-color:var(--yellow);background:var(--yellow);box-shadow:0 0 0 3px var(--red)}
+/* ===== Parkir Patrol ===== */
+.parking-section{margin-top:62px}
+.parking-frame{background:var(--yellow);border:4px solid var(--navy);border-radius:30px;padding:12px;box-shadow:0 24px 50px -20px rgba(12,43,80,.55)}
+.parking-board{background:#fff;border-radius:22px;padding:22px}
+.parking-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;padding:0 4px 20px}
+.parking-title{display:flex;align-items:center;gap:13px}
+.parking-emblem{width:48px;height:48px;display:grid;place-items:center;background:var(--red);border:3px solid var(--navy);border-radius:14px;color:#fff;font:20px 'Titan One',cursive;box-shadow:0 4px 0 var(--red-dark)}
+.parking-title h3{font:20px 'Titan One',cursive;color:var(--navy)}
+.parking-title p{font-size:13px;color:var(--sky-deep);font-weight:700;margin-top:2px}
+.parking-count{background:var(--cream);border:3px solid var(--navy);border-radius:14px;padding:8px 17px;text-align:center;min-width:104px}
+.parking-count strong{display:block;font:20px 'Titan One',cursive;color:var(--navy)}
+.parking-count small{font-size:11px;font-weight:800;color:var(--sky-deep)}
+.parking-bays{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.parking-bay{min-width:0;background:var(--sky-soft);border:3px solid var(--navy);border-radius:18px;padding:12px;overflow:hidden;box-shadow:0 5px 0 rgba(20,64,111,.12);transition:background .2s,border-color .2s}
+.parking-bay[data-state="occupied"]{background:var(--bad-bg);border-color:var(--red)}
+.parking-bay[data-state="unknown"]{background:var(--cream)}
+.bay-label{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 2px 10px}
+.bay-label strong{font:15px 'Titan One',cursive;color:var(--navy)}
+.bay-state{border:2px solid #A9DECB;border-radius:999px;background:var(--ok-bg);padding:4px 10px;color:var(--ok);font:11px 'Titan One',cursive;white-space:nowrap}
+.parking-bay[data-state="occupied"] .bay-state{border-color:#EFC0B6;background:#fff;color:var(--bad)}
+.parking-bay[data-state="unknown"] .bay-state{border-color:#E5D49A;background:#fff;color:#8A6D00}
+.parking-lane{position:relative;min-height:128px;display:grid;place-items:center;overflow:hidden;border:3px dashed #fff;border-radius:13px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 34px,transparent 34px 67px),linear-gradient(180deg,var(--sky),var(--sky-deep))}
+.parking-lane::before,.parking-lane::after{content:"";position:absolute;top:50%;width:22px;height:5px;border-radius:99px;background:var(--yellow);opacity:.9}
+.parking-lane::before{left:8%}.parking-lane::after{right:8%}
+.empty-mark{display:grid;place-items:center;width:75px;height:75px;border:3px dashed rgba(255,255,255,.8);border-radius:50%;color:#fff;font-size:34px;opacity:.78}
+.car-illustration{display:none;width:min(78%,230px);height:auto;filter:drop-shadow(0 5px 0 rgba(12,43,80,.28))}
+.parking-bay[data-state="occupied"] .car-illustration{display:block;animation:car-arrive .35s ease-out both}
+.parking-bay[data-state="occupied"] .empty-mark{display:none}
+.parking-bay[data-state="unknown"] .empty-mark{opacity:.45}
+@keyframes car-arrive{from{transform:translateY(13px) scale(.92);opacity:.4}to{transform:translateY(0) scale(1);opacity:1}}
+.bay-caption{text-align:center;padding:9px 4px 0;color:var(--navy);font-size:12px;font-weight:800}
+.parking-footer{display:flex;align-items:center;gap:9px;padding:16px 4px 0;color:var(--sky-deep);font-size:12px;font-weight:800}
+.parking-footer i{width:11px;height:11px;flex:0 0 auto;border-radius:50%;background:#E5A800;box-shadow:0 0 0 4px var(--cream)}
+.parking-footer.live i{background:var(--ok);box-shadow:0 0 0 4px var(--ok-bg)}
+.parking-footer.offline i{background:var(--bad);box-shadow:0 0 0 4px var(--bad-bg)}
+@media(max-width:520px){.parking-board{padding:16px}.parking-bays{grid-template-columns:1fr}.parking-title h3{font-size:18px}.parking-count{min-width:92px}.parking-lane{min-height:116px}}
 
 /* ===== Langkah cara pakai ===== */
 .section-head{text-align:center;margin:64px 0 26px}
@@ -194,19 +212,33 @@ nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margi
 .mb-card{background:var(--navy);border:4px solid var(--navy-deep);border-radius:26px;padding:34px;margin-top:18px;color:#CFE6F7;box-shadow:0 20px 44px -20px rgba(12,43,80,.6)}
 .mb-card h3{font-family:'Titan One',cursive;font-size:21px;color:#fff;letter-spacing:.5px}
 .mb-card .tag{display:inline-block;background:var(--yellow);color:var(--navy);font-family:'Titan One',cursive;font-size:12px;
-  letter-spacing:1.5px;padding:5px 16px;border-radius:99px;margin-bottom:14px;transform:rotate(-1.5deg)}
+  letter-spacing:1.5px;padding:5px 16px;border-radius:9px;margin-bottom:14px;transform:rotate(-1.5deg)}
 .mb-card p{margin-top:10px;font-size:14px;color:#9FC4E2;font-weight:600;max-width:660px}
 .mb-card p strong{color:var(--yellow)}
 .mb-card pre{margin-top:18px;background:var(--navy-deep);border:3px solid #2A5B8C;border-radius:14px;padding:20px;font-size:13px;line-height:1.75;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;color:#FFD36E}
 .mb-card pre .k{color:#7FC8F2}.mb-card pre .s{color:#B4E3A8}
+
+/* ===== Mini Misi ===== */
+.game-frame{background:var(--yellow);border-radius:30px;padding:12px;border:4px solid var(--navy);box-shadow:0 24px 50px -20px rgba(12,43,80,.55)}
+.game-inner{background:#fff;border-radius:22px;padding:22px}
+.game-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
+.game-stage{position:relative;border:3px solid var(--navy);border-radius:16px;overflow:hidden;background:var(--sky);box-shadow:0 6px 0 rgba(20,64,111,.12)}
+#gameCanvas{display:block;width:100%;height:auto}
+.game-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(12,43,80,.62);text-align:center;padding:24px}
+.game-overlay.hide{display:none}
+.game-overlay h3{font-family:'Titan One',cursive;font-size:clamp(22px,3vw,30px);color:#fff;text-shadow:0 3px 0 var(--navy-deep);letter-spacing:.5px}
+.game-overlay p{color:#EAF6FF;font-weight:700;font-size:14.5px}
+.touch-bar{display:flex;gap:10px;margin-top:12px}
+.touch-bar button{flex:1;font-size:20px;padding:12px 0}
+.hud-track{margin:0 20px 18px;height:12px;border-radius:999px;background:var(--sky-soft);border:2px solid var(--navy);overflow:hidden}
+.hud-fill{height:100%;width:0%;background:repeating-linear-gradient(45deg,var(--ok) 0 10px,var(--ok) 10px 20px);transition:width .2s}
 
 footer{margin-top:70px;background:var(--navy);border-top:6px solid var(--red);color:#9FC4E2;padding:44px 26px}
 .foot-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
 .foot-inner .brand{color:#fff}
 .foot-inner .brand .shield{transform:rotate(0)}
 .foot-paws{font-size:20px;letter-spacing:8px;color:var(--yellow)}
-footer small{font-size:12.5px;font-weight:600;text-align:right}
-.fomo-tag{color:var(--yellow);font-size:13.5px;font-weight:800;display:block;margin-top:4px;letter-spacing:.5px}
+footer small{font-size:12.5px;font-weight:600}
 
 @media(max-width:960px){
   .nav-links{display:none}
@@ -221,8 +253,6 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
   .btn{width:100%}
   .hero-cta{flex-direction:column}
   .dash-tabs span{padding:7px 12px}
-  .foot-inner{flex-direction:column;text-align:center}
-  footer small{text-align:center}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -243,8 +273,8 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     <div class="nav-links">
       <a href="#beranda" class="active"><span class="ic">🏠</span> Beranda</a>
       <a href="#dashboard"><span class="ic">🎮</span> Dashboard</a>
-      <a href="#game"><span class="ic">🐶</span> Flappy Patrol</a>
       <a href="#cara"><span class="ic">🦴</span> Cara Pakai</a>
+      <a href="#misi"><span class="ic">🚗</span> Mini Misi</a>
       <a href="#kode"><span class="ic">💻</span> Kode micro:bit</a>
     </div>
     <button class="btn btn-yellow btn-sm" onclick="connectBluetooth()">Hubungkan</button>
@@ -326,54 +356,79 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     </div>
   </section>
 
-  <!-- ===== MINI GAME SECTION (FLAPPY PAW PATROL) ===== -->
-  <section id="game" style="margin-top: 50px;">
-    <div class="dash-frame">
-      <div class="dashboard">
-        <div class="dash-top">
-          <div><h2>🐶 Flappy Paw Patrol (Sangat Mudah!)</h2><p>Bantu anjing Paw Patrol terbang santai melewati pilar! 🏰</p></div>
-          <button class="btn btn-red btn-sm" onclick="resetGameOverlay()">🎮 Pilih Karakter &amp; Main</button>
-        </div>
-
-        <div class="game-hud">
-          <span>🐾 Karakter: <strong id="hudChar" style="color:var(--yellow)">Skye 🩷</strong></span>
-          <span>🏆 Skor: <strong id="gameScore" style="color:#FFCB05">0</strong></span>
-          <span>🥇 Rekor Terbaik: <strong id="gameHighScore" style="color:#1E9E6A">0</strong></span>
-        </div>
-
-        <div class="game-container">
-          <canvas id="gameCanvas" width="800" height="380"></canvas>
-          
-          <div class="game-overlay" id="gameOverlay">
-            <h3>🐾 FLAPPY PAW PATROL</h3>
-            <p>Pilih anjing favoritmu! Game ini sudah dibuat <strong>sangat mudah &amp; santai</strong>.<br><small>Tekan Tombol / Spasi / Gestur Kamera (👌 Oke / ✌️ Peace) untuk terbang!</small></p>
-            
-            <!-- Character Choice with Canvas Icons -->
-            <div class="char-selector">
-              <div class="char-card skye selected" onclick="selectChar('skye')">
-                <canvas id="previewSkye" width="46" height="46"></canvas>
-                <span>SKYE</span>
-                <small style="color:#E91E63;font-size:10px">Pink</small>
-              </div>
-              <div class="char-card marshall" onclick="selectChar('marshall')">
-                <canvas id="previewMarshall" width="46" height="46"></canvas>
-                <span>MARSHALL</span>
-                <small style="color:#EE3B33;font-size:10px">Merah</small>
-              </div>
-              <div class="char-card chase" onclick="selectChar('chase')">
-                <canvas id="previewChase" width="46" height="46"></canvas>
-                <span>CHASE</span>
-                <small style="color:#2E86C9;font-size:10px">Biru</small>
-              </div>
-            </div>
-
-            <button class="btn btn-yellow" onclick="startMiniGame()">🚀 TERBANG SEKARANG!</button>
+  <!-- ===== SLOT PARKIR PAW PATROL ===== -->
+  <section id="parkir" class="parking-section">
+    <div class="section-head"><span class="pre">🚘 GARASI PATROL</span><h2>Slot Parkir Patrol</h2><p id="parkingConnectionText">Menunggu data sensor parkir…</p></div>
+    
+    <div class="parking-frame">
+      <div class="parking-board">
+        
+        <!-- INPUT MANUAL ESP32 JIKA AUTO-DETECT GAGAL -->
+        <div id="manual-config" style="display: none; margin-bottom: 18px; background: var(--bad-bg); border: 3px solid var(--bad); border-radius: 14px; padding: 14px;">
+          <p style="font-size: 13px; color: var(--bad); font-weight: 800; margin-bottom: 8px;">Gagal mendeteksi ESP32 secara otomatis. Masukkan IP manual (lihat Serial Monitor):</p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="esp-ip" placeholder="192.168.x.x" style="flex: 1; min-width: 140px; padding: 8px 14px; border-radius: 8px; border: 2px solid var(--navy); font-weight: 700; font-family: inherit; font-size: 14px; outline: none;">
+            <button class="btn btn-navy btn-sm" onclick="saveEspAddress()">Hubungkan</button>
+            <button class="btn btn-outline btn-sm" onclick="startAutoDetect()">Coba Auto Lagi</button>
           </div>
         </div>
 
-        <div class="game-controls">
-          <button class="btn btn-yellow btn-sm" style="width: 100%; max-width: 400px; padding: 14px; font-size: 16px;" onclick="triggerGameAction('JUMP')">🚀 LONCAT / FLAP! (Spasi / Klik Layar / Gestur Kamera)</button>
+        <div class="parking-head">
+          <div class="parking-title"><span class="parking-emblem" aria-hidden="true">P</span><div><h3>Garasi Patroli</h3><p id="parkingStatusSummary">Belum menerima data sensor</p></div></div>
+          <div class="parking-count"><strong id="parkingCount">- / 2</strong><small>slot terisi</small></div>
         </div>
+        
+        <div class="parking-bays" role="group" aria-label="Status dua slot parkir">
+          <article class="parking-bay" id="parkingSlot1" data-state="unknown" aria-label="Slot parkir 1 menunggu data sensor">
+            <div class="bay-label"><strong>SLOT 1</strong><span class="bay-state" id="parkingSlot1State">MENUNGGU</span></div>
+            <div class="parking-lane">
+              <div class="empty-mark" aria-hidden="true">🐾</div>
+              <svg class="car-illustration" viewBox="0 0 240 120" role="img" aria-label="Ilustrasi kendaraan patroli terparkir">
+                <ellipse cx="120" cy="103" rx="89" ry="10" fill="#0C2B50" opacity=".24"/>
+                <path d="M42 72 54 43q4-10 17-12l24-3 20-19q5-5 13-5h31q10 0 16 8l20 24 13 7q8 4 8 14v22q0 8-9 8h-8a18 18 0 0 0-35 0H84a18 18 0 0 0-35 0h-9q-8 0-8-8V78q0-5 10-6Z" fill="#EE3B33" stroke="#0C2B50" stroke-width="5" stroke-linejoin="round"/>
+                <path d="m103 34 17-17q3-3 8-3h27q6 0 10 5l13 16Z" fill="#BDE3F8" stroke="#0C2B50" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M127 17v18" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M52 47h142l11 13H46Z" fill="#2E86C9" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M95 47h51v26H95z" fill="#FFCB05" stroke="#0C2B50" stroke-width="3"/>
+                <circle cx="68" cy="84" r="17" fill="#14406F" stroke="#0C2B50" stroke-width="4"/><circle cx="68" cy="84" r="7" fill="#FFCB05"/>
+                <circle cx="184" cy="84" r="17" fill="#14406F" stroke="#0C2B50" stroke-width="4"/><circle cx="184" cy="84" r="7" fill="#FFCB05"/>
+                <path d="M216 61h10v12h-10" fill="#FFCB05" stroke="#0C2B50" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M35 63h10v10H35" fill="#fff" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M115 53c-3-5-11-3-11 3 0 6 11 13 11 13s11-7 11-13c0-6-8-8-11-3Z" fill="#EE3B33" stroke="#0C2B50" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="bay-caption" id="parkingSlot1Caption">Menunggu data sensor</div>
+          </article>
+          <article class="parking-bay" id="parkingSlot2" data-state="unknown" aria-label="Slot parkir 2 menunggu data sensor">
+            <div class="bay-label"><strong>SLOT 2</strong><span class="bay-state" id="parkingSlot2State">MENUNGGU</span></div>
+            <div class="parking-lane">
+              <div class="empty-mark" aria-hidden="true">🐾</div>
+              <svg class="car-illustration" viewBox="0 0 240 120" role="img" aria-label="Ilustrasi kendaraan patroli terparkir">
+                <ellipse cx="120" cy="103" rx="89" ry="10" fill="#0C2B50" opacity=".24"/>
+                <path d="M42 72 54 43q4-10 17-12l24-3 20-19q5-5 13-5h31q10 0 16 8l20 24 13 7q8 4 8 14v22q0 8-9 8h-8a18 18 0 0 0-35 0H84a18 18 0 0 0-35 0h-9q-8 0-8-8V78q0-5 10-6Z" fill="#EE3B33" stroke="#0C2B50" stroke-width="5" stroke-linejoin="round"/>
+                <path d="m103 34 17-17q3-3 8-3h27q6 0 10 5l13 16Z" fill="#BDE3F8" stroke="#0C2B50" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M127 17v18" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M52 47h142l11 13H46Z" fill="#2E86C9" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M95 47h51v26H95z" fill="#FFCB05" stroke="#0C2B50" stroke-width="3"/>
+                <circle cx="68" cy="84" r="17" fill="#14406F" stroke="#0C2B50" stroke-width="4"/><circle cx="68" cy="84" r="7" fill="#FFCB05"/>
+                <circle cx="184" cy="84" r="17" fill="#14406F" stroke="#0C2B50" stroke-width="4"/><circle cx="184" cy="84" r="7" fill="#FFCB05"/>
+                <path d="M216 61h10v12h-10" fill="#FFCB05" stroke="#0C2B50" stroke-width="3" stroke-linejoin="round"/>
+                <path d="M35 63h10v10H35" fill="#fff" stroke="#0C2B50" stroke-width="3"/>
+                <path d="M115 53c-3-5-11-3-11 3 0 6 11 13 11 13s11-7 11-13c0-6-8-8-11-3Z" fill="#EE3B33" stroke="#0C2B50" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="bay-caption" id="parkingSlot2Caption">Menunggu data sensor</div>
+          </article>
+        </div>
+
+        <!-- STATUS GERBANG KELUAR ESP32 -->
+        <div style="margin-top: 16px; padding: 16px; background: var(--cream); border: 3px dashed var(--sky-deep); border-radius: 18px;">
+          <div class="bay-caption" style="text-align: left; padding: 0 0 10px 0; font-size: 14px;"><strong>GERBANG KELUAR PATROLI</strong></div>
+          <div class="status-item" style="padding: 6px 0; border-bottom: 2px dashed #D6E4ED;"><span class="status-label">Sensor IR Gerbang Keluar</span><span class="status-value other" id="irGateState">Menunggu</span></div>
+          <div class="status-item" style="padding: 6px 0; border-bottom: 0;"><span class="status-label">Servo Gerbang Keluar</span><span class="status-value other" id="servoGateState">Menunggu</span></div>
+        </div>
+
+        <div class="parking-footer" id="parkingSensorState"><i aria-hidden="true"></i><span>Menghubungkan ke sensor parkir…</span></div>
       </div>
     </div>
   </section>
@@ -385,6 +440,58 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
       <div class="step"><div class="num">1</div><h3>Hubungkan micro:bit</h3><p>Klik "Hubungkan micro:bit", pilih perangkat <strong>BBC micro:bit</strong> kamu. Pastikan program Bluetooth UART sudah jalan di micro:bit.</p></div>
       <div class="step"><div class="num">2</div><h3>Mulai Kamera</h3><p>Klik "Mulai Kamera" dan izinkan akses kamera. Model gestur Oke &amp; Peace akan dimuat otomatis dari Teachable Machine.</p></div>
       <div class="step"><div class="num">3</div><h3>Tunjukkan Gestur</h3><p>Tahan gestur <strong>👌 Oke</strong> atau <strong>✌️ Peace</strong> di depan kamera selama 0,7 detik. Ikon di micro:bit langsung berganti — misi sukses!</p></div>
+    </div>
+  </section>
+
+  <!-- ===== MINI MISI ===== -->
+  <section id="misi">
+    <div class="section-head"><span class="pre">🎮 MINI MISI</span><h2>Bantu Chase Menuju Lookout!</h2><p>Mobil patroli harus sampai ke tujuan — hindari rintangan, kumpulkan tulang!</p></div>
+    <div class="game-frame">
+      <div class="game-inner">
+        <div class="game-grid">
+          <div>
+            <div class="game-stage">
+              <canvas id="gameCanvas" width="480" height="640"></canvas>
+              <div class="game-overlay hide" id="gameOverlay">
+                <h3 id="ovTitle">SIAP BERTUGAS?</h3>
+                <p id="ovText">Bawa mobil patroli sampai ke Lookout!</p>
+                <button class="btn btn-red" id="ovBtn">▶ Mulai Misi</button>
+              </div>
+            </div>
+            <div class="touch-bar">
+              <button class="btn btn-navy" onclick="gSteer(-1)" aria-label="Pindah kiri">◀</button>
+              <button class="btn btn-yellow" onclick="gJump()" aria-label="Lompat">⤒</button>
+              <button class="btn btn-navy" onclick="gSteer(1)" aria-label="Pindah kanan">▶</button>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="panel">
+              <div class="panel-title"><span>HUD MISI</span><span>Real-time</span></div>
+              <div class="status-list">
+                <div class="status-item"><span class="status-label">Nyawa Pup</span><span class="status-value" id="hudHearts">❤️❤️❤️</span></div>
+                <div class="status-item"><span class="status-label">Tulang Terkumpul</span><span class="status-value"><span id="hudBones">0</span> 🦴</span></div>
+                <div class="status-item"><span class="status-label">Jarak ke Lookout</span><span class="status-value" id="hudDist">0%</span></div>
+              </div>
+              <div class="hud-track"><div class="hud-fill" id="hudFill"></div></div>
+            </div>
+
+            <div class="panel yellow">
+              <div class="panel-title"><span>KONTROL MISI</span><span>2 tombol</span></div>
+              <div class="controls">
+                <button class="btn btn-red" id="btnGamePlay" onclick="gTogglePlay()">▶ Mulai Misi</button>
+                <button class="btn btn-outline" onclick="gStart()">🔁 Ulangi</button>
+              </div>
+              <p class="info">
+                • <strong>←</strong> / <strong>→</strong> atau tombol ◀ ▶ : pindah jalur<br>
+                • <strong>Spasi</strong> / <strong>↑</strong> atau tombol ⤒ : lompat<br>
+                • Kamera aktif? <strong>✌️ Peace</strong> = lompat, <strong>👌 Oke</strong> = turbo!<br>
+                • 🚧 kerucut harus dihindari, 🪨 batu bisa dilompati, 🦴 tulang = poin
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -418,24 +525,23 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
   <div class="foot-inner">
     <div class="brand"><span class="shield">🐾</span> Gesture Patrol</div>
     <div class="foot-paws">🐾 🐾 🐾</div>
-    <small>
-      Gestur Oke &amp; Peace → ikon micro:bit · dibuat dengan Teachable Machine
-      <span class="fomo-tag">Web game yg no no FOMO</span>
-    </small>
+    <small>Gestur Oke &amp; Peace → ikon micro:bit · dibuat dengan Teachable Machine</small>
   </div>
 </footer>
 
 <script>
   // ==================== KONFIGURASI ====================
   const MODEL_URL = "https://teachablemachine.withgoogle.com/models/SPsW2RXe4n/";
-  const CONFIDENCE_THRESHOLD = 0.90;          
+  const CONFIDENCE_THRESHOLD = 0.90;          // syarat yakin untuk MENGIRIM
   const ALLOWED_LABELS = ["oke", "peace"];
 
-  const STABLE_MS = 700;           
-  const CLEAR_MS = 1500;           
-  const COOLDOWN_MS = 3000;        
-  const PRESENCE_THRESHOLD = 0.60; 
+  // ----- Pengaturan anti-sensitif (silakan diubah) -----
+  const STABLE_MS = 700;           // gestur harus terdeteksi stabil selama ini baru dikirim
+  const CLEAR_MS = 1500;           // tangan harus hilang selama ini baru kunci terbuka
+  const COOLDOWN_MS = 3000;        // jeda minimal antar pengiriman
+  const PRESENCE_THRESHOLD = 0.60; // di bawah ini dianggap gestur sudah tidak ada
 
+  // UUID Bluetooth (Nordic UART Service)
   const UART_SERVICE = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
   const UART_RX      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
 
@@ -449,11 +555,12 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
   let writeCharacteristic = null;
   let isBluetoothConnected = false;
 
-  let candidateLabel = null;    
-  let candidateSince = 0;       
-  let locked = false;           
+  // Status deteksi
+  let candidateLabel = null;    // gestur yang sedang diuji kestabilannya
+  let candidateSince = 0;       // sejak kapan gestur itu terdeteksi stabil
+  let locked = false;           // true = sudah kirim, tunggu tangan dijauhkan
   let lastSendTime = 0;
-  let lastPresenceTime = 0;     
+  let lastPresenceTime = 0;     // terakhir kali oke/peace masih terlihat
   let isSending = false;
 
   function resetDetection() {
@@ -483,6 +590,7 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     document.getElementById("btn-connect").disabled = connected;
     document.getElementById("btn-connect2").disabled = connected;
     document.getElementById("btn-disconnect").disabled = !connected;
+    // Dihapus agar tombol kamera tetap bisa diklik walau belum ada bluetooth
     setBadge(connected ? "live" : "", connected ? "micro:bit terhubung" : "Belum terhubung");
   }
 
@@ -499,7 +607,8 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     const el = document.getElementById("color-status");
     el.textContent = label || "-";
     el.className = "status-value";
-    if (label === "oke" || label === "peace") el.classList.add("ok");
+    if (label === "oke") el.classList.add("ok");
+    else if (label === "peace") el.classList.add("ok");
     else el.classList.add("other");
   }
 
@@ -546,9 +655,9 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
       isBluetoothConnected = true;
       setBtStatus(true);
       setIconStatus("Siaga");
-      log("Berhasil terhubung ke micro:bit!");
+      log("Berhasil terhubung");
     } catch (err) {
-      log("Gagal koneksi Bluetooth: " + err.message);
+      log("Gagal koneksi: " + err.message);
       console.error(err);
       setBtStatus(false);
     }
@@ -561,7 +670,8 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     setBtStatus(false);
     setIconStatus("Siaga");
     setLastCommand("-");
-    log("Koneksi Bluetooth terputus");
+    log("Koneksi terputus");
+    stopCamera();
   }
 
   function disconnectBluetooth() {
@@ -571,11 +681,10 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     onDisconnected();
   }
 
+  // Mengembalikan true kalau berhasil terkirim
   async function sendCommand(label) {
-    triggerGameAction('JUMP');
-
     if (!isBluetoothConnected || !writeCharacteristic) {
-      log("Deteksi " + label + " (micro:bit belum terhubung)");
+      log("Belum terhubung ke micro:bit, gestur: " + label);
       return false;
     }
 
@@ -585,10 +694,10 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
 
       setLastCommand(label);
       setIconStatus(label === "oke" ? "👌 Centang" : "✌️ Peace");
-      log("Perintah " + label + " terkirim ke micro:bit");
+      log("Perintah " + label + " dikirim (sekali)");
       return true;
     } catch (err) {
-      log("Gagal kirim perintah: " + err.message);
+      log("Gagal kirim: " + err.message);
       console.error(err);
       return false;
     }
@@ -596,20 +705,19 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
 
   // ==================== TEACHABLE MACHINE ====================
   async function loadModel() {
-    log("Memuat model gestur dari Teachable Machine...");
+    log("Memuat model gestur...");
     const modelURL = MODEL_URL + "model.json";
     const metadataURL = MODEL_URL + "metadata.json";
     model = await tmImage.load(modelURL, metadataURL);
     maxPredictions = model.getTotalClasses();
-    log("Model AI siap (" + maxPredictions + " kelas)");
+    log("Model siap (" + maxPredictions + " kelas)");
   }
 
   async function startCamera() {
-    try {
-      if (!model) await loadModel();
+    if (!model) await loadModel();
 
-      log("Meminta akses kamera...");
-      webcam = new tmImage.Webcam(420, 315, true); 
+    try {
+      webcam = new tmImage.Webcam(420, 315, true);
       await webcam.setup();
       await webcam.play();
       window.requestAnimationFrame(loop);
@@ -622,12 +730,10 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
       resetDetection();
       setIconStatus("Siaga");
       setCamStatus(true);
-      log("Kamera berhasil dinyalakan!");
+      log("Kamera aktif");
     } catch (err) {
-      let msg = err.message || err;
-      log("Gagal membuka kamera: " + msg);
-      console.error("Camera Error:", err);
-      alert("Kamera gagal diakses!\n\nPastikan:\n1. Izinkan akses kamera di browser.\n2. Kamera tidak dipakai aplikasi lain.\n3. Jalankan via Live Server atau HTTPS.");
+      log("Gagal kamera: " + err.message);
+      console.error(err);
     }
   }
 
@@ -655,9 +761,9 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
   }
 
   async function predict() {
-    if (!webcam || !webcam.canvas) return;
     const prediction = await model.predict(webcam.canvas);
 
+    // Cari prediksi tertinggi
     let best = prediction[0];
     for (let i = 1; i < maxPredictions; i++) {
       if (prediction[i].probability > best.probability) {
@@ -669,13 +775,19 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     const conf = best.probability;
     const now = performance.now();
 
+    // Update tampilan
     setPrediction(label, conf);
     setColorStatus(label);
+    if (window.gGesture) window.gGesture(label, conf);
 
     const isAllowed = ALLOWED_LABELS.includes(label);
-    const strong = isAllowed && conf >= CONFIDENCE_THRESHOLD;
-    const present = isAllowed && conf >= PRESENCE_THRESHOLD;
+    const strong = isAllowed && conf >= CONFIDENCE_THRESHOLD;   // cukup yakin untuk mengirim
+    const present = isAllowed && conf >= PRESENCE_THRESHOLD;    // gestur masih ada di depan kamera
 
+    // ========== LOGIKA UTAMA ==========
+
+    // 1) TERKUNCI: sudah pernah kirim. Abaikan semua perubahan gestur (oke/peace/oke...)
+    //    sampai tangan benar-benar hilang cukup lama.
     if (locked) {
       if (present) {
         lastPresenceTime = now;
@@ -688,22 +800,28 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
       return;
     }
 
+    // 2) SIAGA: tunggu satu gestur terdeteksi stabil
     if (strong) {
       if (label !== candidateLabel) {
+        // mulai menghitung kestabilan gestur baru
         candidateLabel = label;
         candidateSince = now;
         setIconStatus("Memastikan " + label + "...");
       } else if (now - candidateSince >= STABLE_MS && !isSending) {
+        // stabil cukup lama -> kirim SEKALI lalu kunci
         isSending = true;
         const ok = await sendCommand(label);
         isSending = false;
 
-        locked = true;
-        lastSendTime = performance.now();
-        lastPresenceTime = lastSendTime;
+        if (ok) {
+          locked = true;
+          lastSendTime = performance.now();
+          lastPresenceTime = lastSendTime;
+        }
         candidateLabel = null;
       }
     } else {
+      // Toleransi: turun sebentar tapi masih gestur yang sama -> jangan reset hitungan
       const stillSame = present && label === candidateLabel;
       if (candidateLabel && !stillSame) {
         candidateLabel = null;
@@ -712,331 +830,210 @@ footer small{font-size:12.5px;font-weight:600;text-align:right}
     }
   }
 
-  // ==================== VECTOR DRAWING PAW PATROL ====================
-  function drawPawCharacter(c, x, y, charKey, scale = 1, rotation = 0) {
-    c.save();
-    c.translate(x, y);
-    c.rotate(rotation);
-    c.scale(scale, scale);
+  // ==================== SENSOR SLOT PARKIR & AUTO DETECT ESP32 ====================
+  (function initParkingSensors() {
+    let BASE = "";
+    let isConnected = false;
+    let failCount = 0;
+    const parkingFooter = document.getElementById("parkingSensorState");
+    const summary = document.getElementById("parkingStatusSummary");
+    const connectionText = document.getElementById("parkingConnectionText");
+    const manualConfig = document.getElementById("manual-config");
 
-    c.lineWidth = 2.5;
-    c.strokeStyle = "#14406F";
-
-    if (charKey === "skye") {
-      // SKYE (Pink & Tan)
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#F3C892";
-      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#EC407A";
-      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#F48FB1";
-      c.beginPath(); c.roundRect(-6, 7, 12, 5, 2); c.fill(); c.stroke();
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#F3C892";
-      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#EC407A";
-      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
-      c.fillRect(-13, -11, 26, 3.5); c.strokeRect(-13, -11, 26, 3.5);
-      c.fillStyle = "#FBC02D";
-      c.beginPath(); c.arc(-5, -13, 3.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.arc(5, -13, 3.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#14406F";
-      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
-    } 
-    else if (charKey === "marshall") {
-      // MARSHALL (Putih & Merah)
-      c.fillStyle = "#14406F";
-      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#FFFFFF";
-      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#FFFFFF";
-      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#E53935";
-      c.beginPath(); c.ellipse(0, 8, 10, 7, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#FFFFFF";
-      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#14406F";
-      c.beginPath(); c.arc(-13, 0, 2, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(13, 0, 2, 0, Math.PI*2); c.fill();
-      c.fillStyle = "#FFFFFF";
-      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#E53935";
-      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
-      c.fillRect(-14, -11, 28, 3.5); c.strokeRect(-14, -11, 28, 3.5);
-      c.fillStyle = "#FBC02D";
-      c.beginPath(); c.roundRect(-3.5, -16, 7, 5, 1.5); c.fill(); c.stroke();
-      c.fillStyle = "#14406F";
-      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
-    } 
-    else {
-      // CHASE (Cokelat & Biru Polisi)
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.arc(16, 7, 3, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.ellipse(-11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(11, 16, 5.5, 3.5, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.ellipse(0, 9, 12, 10, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#1E88E5";
-      c.beginPath(); c.ellipse(0, 8, 10, 7, 0, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#FBC02D";
-      c.beginPath(); c.arc(0, 9, 2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.ellipse(-13, -3, 3.5, 9, 0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.beginPath(); c.ellipse(13, -3, 3.5, 9, -0.2, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#8D5B28";
-      c.beginPath(); c.arc(0, -5, 13, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#1E88E5";
-      c.beginPath(); c.arc(0, -9, 13, Math.PI, 0); c.fill(); c.stroke();
-      c.fillStyle = "#0D47A1";
-      c.fillRect(-14, -11, 28, 3.5); c.strokeRect(-14, -11, 28, 3.5);
-      c.fillStyle = "#FBC02D";
-      c.beginPath(); c.arc(0, -13, 3, 0, Math.PI*2); c.fill(); c.stroke();
-      c.fillStyle = "#14406F";
-      c.beginPath(); c.arc(-4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(4, -5, 1.8, 0, Math.PI*2); c.fill();
-      c.beginPath(); c.arc(0, -1, 2.2, 0, Math.PI*2); c.fill();
+    function isOccupied(value) {
+      if (value === true || value === 1) return true;
+      if (typeof value === "string") return ["1", "true", "occupied", "terisi"].includes(value.trim().toLowerCase());
+      return false;
     }
 
-    c.restore();
-  }
+    function updateSlot(slotNumber, occupied) {
+      const slot = document.getElementById("parkingSlot" + slotNumber);
+      const state = document.getElementById("parkingSlot" + slotNumber + "State");
+      const caption = document.getElementById("parkingSlot" + slotNumber + "Caption");
+      slot.dataset.state = occupied ? "occupied" : "empty";
+      slot.setAttribute("aria-label", "Slot parkir " + slotNumber + (occupied ? " terisi" : " kosong"));
+      state.textContent = occupied ? "TERISI" : "KOSONG";
+      caption.textContent = occupied ? "Kendaraan terdeteksi" : "Tempat parkir kosong";
+    }
 
-  function renderPreviewCards() {
-    ['skye', 'marshall', 'chase'].forEach(key => {
-      const capKey = key.charAt(0).toUpperCase() + key.slice(1);
-      const cvs = document.getElementById("preview" + capKey);
-      if (cvs) {
-        const c = cvs.getContext("2d");
-        c.clearRect(0, 0, 46, 46);
-        drawPawCharacter(c, 23, 22, key, 0.9, 0);
+    function render(d) {
+      // 1. Slot Parkir
+      const slot1Occupied = isOccupied(d.ir1);
+      const slot2Occupied = isOccupied(d.ir2);
+      updateSlot(1, slot1Occupied);
+      updateSlot(2, slot2Occupied);
+
+      const occupiedCount = Number(slot1Occupied) + Number(slot2Occupied);
+      document.getElementById("parkingCount").textContent = occupiedCount + " / 2";
+      summary.textContent = occupiedCount === 2 ? "Semua slot sedang terisi" : (2 - occupiedCount) + " slot masih tersedia";
+      connectionText.textContent = "Status diperbarui otomatis dari ESP32 (" + (d.ip || BASE) + ")";
+
+      parkingFooter.className = "parking-footer live";
+      parkingFooter.querySelector("span").textContent = "ESP32 terhubung · diperbarui " + new Date().toLocaleTimeString("id-ID");
+
+      // 2. Gerbang Keluar
+      const gateOccupied = isOccupied(d.irGate);
+      const gateOpen = isOccupied(d.gateOpen);
+      
+      const irEl = document.getElementById("irGateState");
+      if (irEl) {
+        irEl.textContent = gateOccupied ? "Terdeteksi" : "Bebas";
+        irEl.className = "status-value " + (gateOccupied ? "bad" : "ok");
       }
-    });
-  }
-
-  // ==================== MINI GAME LOGIC (EASY FLAPPY PATROL) ====================
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
-
-  let gameRunning = false;
-  let gameLoopId = null;
-  let score = 0;
-  let highScore = 0;
-  let frameCount = 0;
-
-  const characters = {
-    skye: { name: "Skye 🩷", color: "#EC407A" },
-    marshall: { name: "Marshall 🔴", color: "#E53935" },
-    chase: { name: "Chase 🔵", color: "#1E88E5" }
-  };
-  let selectedCharKey = "skye";
-
-  function selectChar(key) {
-    selectedCharKey = key;
-    document.querySelectorAll(".char-card").forEach(c => c.classList.remove("selected"));
-    document.querySelector(".char-card." + key).classList.add("selected");
-    document.getElementById("hudChar").textContent = characters[key].name;
-  }
-
-  const dog = {
-    x: 120,
-    y: 180,
-    radius: 18,
-    velocity: 0,
-    gravity: 0.22,       
-    jumpForce: -5.8,      
-    rotation: 0
-  };
-
-  let pipes = [];
-  let treats = [];
-  const pipeGap = 175;    
-  const pipeWidth = 55;
-  const pipeSpeed = 1.6;  
-
-  function resetGameOverlay() {
-    gameRunning = false;
-    if (gameLoopId) cancelAnimationFrame(gameLoopId);
-    document.getElementById("gameOverlay").style.display = "flex";
-    renderPreviewCards();
-  }
-
-  function startMiniGame() {
-    document.getElementById("gameOverlay").style.display = "none";
-    gameRunning = true;
-    score = 0;
-    frameCount = 0;
-    
-    dog.y = 180;
-    dog.velocity = 0;
-    dog.rotation = 0;
-    pipes = [];
-    treats = [];
-
-    document.getElementById("gameScore").textContent = "0";
-    if (gameLoopId) cancelAnimationFrame(gameLoopId);
-    gameLoop();
-  }
-
-  function triggerGameAction(action) {
-    if (!gameRunning) return;
-    if (action === 'JUMP') {
-      dog.velocity = dog.jumpForce;
-    }
-  }
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === ' ' || e.key === 'ArrowUp') {
-      if (gameRunning) {
-        e.preventDefault();
-        triggerGameAction('JUMP');
+      
+      const servoEl = document.getElementById("servoGateState");
+      if (servoEl) {
+        servoEl.textContent = gateOpen ? "Terbuka" : "Tertutup";
+        servoEl.className = "status-value " + (gateOpen ? "ok" : "bad");
       }
     }
-  });
 
-  canvas.addEventListener('click', () => {
-    if (gameRunning) triggerGameAction('JUMP');
-  });
-
-  function gameLoop() {
-    if (!gameRunning) return;
-
-    frameCount++;
-
-    ctx.fillStyle = "#5BBCEC";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.beginPath();
-    ctx.arc((150 - frameCount * 0.5) % 900 + 800, 60, 22, 0, Math.PI * 2);
-    ctx.arc((150 - frameCount * 0.5) % 900 + 825, 52, 30, 0, Math.PI * 2);
-    ctx.arc((150 - frameCount * 0.5) % 900 + 850, 60, 22, 0, Math.PI * 2);
-    ctx.fill();
-
-    dog.velocity += dog.gravity;
-    dog.y += dog.velocity;
-    dog.rotation = Math.min(Math.PI / 6, Math.max(-Math.PI / 6, dog.velocity * 0.04));
-
-    if (dog.y + dog.radius >= canvas.height - 30 || dog.y - dog.radius <= 0) {
-      endGame();
-      return;
-    }
-
-    if (frameCount % 150 === 0) {
-      const minHeight = 40;
-      const maxHeight = canvas.height - pipeGap - minHeight - 30;
-      const topPipeHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-
-      pipes.push({
-        x: canvas.width,
-        topHeight: topPipeHeight,
-        bottomY: topPipeHeight + pipeGap,
-        passed: false
+    function showUnavailable() {
+      parkingFooter.className = "parking-footer offline";
+      parkingFooter.querySelector("span").textContent = "ESP32 belum terhubung";
+      connectionText.textContent = "Mencari ESP32 di jaringan WiFi...";
+      summary.textContent = "Menunggu data...";
+      [1, 2].forEach(n => {
+        document.getElementById("parkingSlot" + n).dataset.state = "unknown";
+        document.getElementById("parkingSlot" + n + "State").textContent = "MENUNGGU";
+        document.getElementById("parkingSlot" + n + "Caption").textContent = "Menunggu data sensor";
       });
+      document.getElementById("parkingCount").textContent = "- / 2";
+      
+      const irEl = document.getElementById("irGateState");
+      if(irEl) { irEl.textContent = "Menunggu"; irEl.className = "status-value other"; }
+      const servoEl = document.getElementById("servoGateState");
+      if(servoEl) { servoEl.textContent = "Menunggu"; servoEl.className = "status-value other"; }
+      
+      manualConfig.style.display = "block";
+    }
 
-      treats.push({
-        x: canvas.width + pipeWidth / 2,
-        y: topPipeHeight + pipeGap / 2,
-        collected: false
+    function tryOne(url) {
+      return new Promise(resolve => {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => { ctrl.abort(); resolve(null); }, 1800);
+        fetch(url + "/status", { signal: ctrl.signal, cache: "no-store" })
+          .then(r => { if (!r.ok) throw new Error("bad"); return r.json(); })
+          .then(d => { clearTimeout(t); resolve({ url: url, data: d }); })
+          .catch(() => { clearTimeout(t); resolve(null); });
       });
     }
 
-    for (let i = pipes.length - 1; i >= 0; i--) {
-      let p = pipes[i];
-      p.x -= pipeSpeed;
+    function getLocalPrefix() {
+      return new Promise(resolve => {
+        let prefix = null;
+        try {
+          const pc = new RTCPeerConnection({ iceServers: [] });
+          pc.createDataChannel("");
+          pc.createOffer().then(o => pc.setLocalDescription(o));
+          pc.onicecandidate = e => {
+            if (!e.candidate) { pc.close(); resolve(prefix); return; }
+            const m = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(e.candidate.candidate);
+            if (m) {
+              const ip = m[1];
+              if (ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
+                const parts = ip.split(".");
+                prefix = parts[0] + "." + parts[1] + "." + parts[2] + ".";
+                pc.close();
+                resolve(prefix);
+              }
+            }
+          };
+          setTimeout(() => { try { pc.close(); } catch(e){} resolve(prefix); }, 1500);
+        } catch (e) { resolve(null); }
+      });
+    }
 
-      ctx.fillStyle = "#FFCB05";
-      ctx.strokeStyle = "#14406F";
-      ctx.lineWidth = 3;
+    async function autoDetect() {
+      manualConfig.style.display = "none";
+      isConnected = false;
+      parkingFooter.className = "parking-footer";
+      parkingFooter.querySelector("span").textContent = "Mencari ESP32 secara otomatis...";
 
-      ctx.fillRect(p.x, 0, pipeWidth, p.topHeight);
-      ctx.strokeRect(p.x, 0, pipeWidth, p.topHeight);
+      const candidates = [];
+      if (location.protocol === "http:" || location.protocol === "https:") candidates.push("");
+      candidates.push("http://parkir.local");
+      try { const saved = localStorage.getItem("esp32_base"); if (saved) candidates.push(saved); } catch(e){}
 
-      const bottomHeight = canvas.height - p.bottomY - 30;
-      ctx.fillRect(p.x, p.bottomY, pipeWidth, bottomHeight);
-      ctx.strokeRect(p.x, p.bottomY, pipeWidth, bottomHeight);
+      const prefix = await getLocalPrefix();
+      if (prefix) {
+        const common = [50, 100, 101, 102, 110, 120, 150, 200, 10, 20, 30, 40, 60, 70, 80, 90];
+        common.forEach(n => {
+          const u = "http://" + prefix + n;
+          if (!candidates.includes(u)) candidates.push(u);
+        });
+      }
 
-      const hitRadius = dog.radius - 6; 
-      if (
-        dog.x + hitRadius > p.x &&
-        dog.x - hitRadius < p.x + pipeWidth
-      ) {
-        if (dog.y - hitRadius < p.topHeight || dog.y + hitRadius > p.bottomY) {
-          endGame();
-          return;
+      for (let i = 0; i < candidates.length; i++) {
+        connectionText.textContent = "Mencoba " + (candidates[i] || "same origin") + "...";
+        const result = await tryOne(candidates[i]);
+        if (result) {
+          BASE = result.url.replace(/\/+$/, "");
+          try { localStorage.setItem("esp32_base", BASE); } catch(e){}
+          isConnected = true;
+          failCount = 0;
+          render(result.data);
+          return true;
         }
       }
 
-      if (!p.passed && p.x + pipeWidth < dog.x) {
-        p.passed = true;
-        score += 1;
-        document.getElementById("gameScore").textContent = score;
-      }
-
-      if (p.x < -pipeWidth) pipes.splice(i, 1);
+      failCount++;
+      showUnavailable();
+      return false;
     }
 
-    for (let i = treats.length - 1; i >= 0; i--) {
-      let t = treats[i];
-      t.x -= pipeSpeed;
+    function poll() {
+      if (!BASE) return;
+      const ctrl = new AbortController();
+      const t = setTimeout(() => { ctrl.abort(); }, 2200);
 
-      if (!t.collected) {
-        ctx.font = "24px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("🦴", t.x, t.y + 8);
-
-        const dist = Math.hypot(dog.x - t.x, dog.y - t.y);
-        if (dist < dog.radius + 18) {
-          t.collected = true;
-          score += 2;
-          document.getElementById("gameScore").textContent = score;
-        }
-      }
-
-      if (t.x < -30) treats.splice(i, 1);
+      fetch(BASE + "/status", { signal: ctrl.signal, cache: "no-store" })
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(d => {
+          clearTimeout(t);
+          isConnected = true;
+          failCount = 0;
+          manualConfig.style.display = "none";
+          render(d);
+        })
+        .catch(() => {
+          clearTimeout(t);
+          failCount++;
+          if (failCount >= 3) {
+            autoDetect();
+          } else {
+            parkingFooter.className = "parking-footer offline";
+            parkingFooter.querySelector("span").textContent = "Terputus, mencoba lagi (" + failCount + "/3)...";
+          }
+        });
     }
 
-    ctx.fillStyle = "#3AA346";
-    ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
-    ctx.fillStyle = "#2E86C9";
-    ctx.fillRect(0, canvas.height - 30, canvas.width, 4);
+    window.saveEspAddress = function () {
+      let val = document.getElementById("esp-ip").value.trim();
+      if (!val) return alert("Isi IP ESP32 (contoh: 192.168.1.50)");
+      val = val.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
+      BASE = "http://" + val;
+      try { localStorage.setItem("esp32_base", BASE); } catch(e){}
+      failCount = 0;
+      manualConfig.style.display = "none";
+      poll();
+    };
 
-    drawPawCharacter(ctx, dog.x, dog.y, selectedCharKey, 1.2, dog.rotation);
+    window.startAutoDetect = function () { autoDetect(); };
 
-    gameLoopId = requestAnimationFrame(gameLoop);
-  }
-
-  function endGame() {
-    gameRunning = false;
-    if (score > highScore) {
-      highScore = score;
-      document.getElementById("gameHighScore").textContent = highScore;
-    }
-
-    const overlay = document.getElementById("gameOverlay");
-    overlay.style.display = "flex";
-    overlay.querySelector("h3").textContent = "🐾 MISI SELESAI!";
-    overlay.querySelector("p").innerHTML = `Skor Misi: <strong>${score}</strong> | Rekor Terbaik: <strong>${highScore}</strong><br>Bantu ${characters[selectedCharKey].name} terbang lagi!`;
-  }
+    autoDetect();
+    setInterval(() => { if (isConnected && BASE) poll(); }, 1000);
+  })();
 
   // ==================== INIT ====================
   window.addEventListener("load", () => {
-    log("Sistem siap. Klik 'Mulai Kamera' untuk tes kamera atau hubungkan micro:bit.");
-    renderPreviewCards();
     if (!navigator.bluetooth) {
-      log("Peringatan: Browser tidak mendukung Web Bluetooth.");
+      log("Browser tidak mendukung Web Bluetooth. Gunakan Chrome / Edge dan buka file ini langsung dari komputer.");
       document.getElementById("btn-connect").disabled = true;
       document.getElementById("btn-connect2").disabled = true;
       setBadge("err", "Bluetooth tidak didukung");
+    } else {
+      log("Sistem siap. Kamu bisa mulai kamera atau hubungkan micro:bit.");
     }
   });
 </script>
